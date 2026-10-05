@@ -1,0 +1,25 @@
+\chapter{Background}
+
+In this chapter, we cover some Definitions relevant for this thesis.
+
+\section{Deterministic Finite Automaton}
+\textbf{Definition:} A deterministic finite automaton (DFA) is a 5-tuple $M = \langle Q, \Sigma, \delta, q_0, F \rangle$ where
+\begin{itemize}
+    \item $Q$ is the finite set of states
+    \item $\Sigma$ is the input alphabet
+    \item $\delta : Q \times \Sigma \rightarrow Q$ is the transition function
+    \item $q_0 \in Q$ is the start state
+    \item $F \subseteq Q$ is the set of accept states (or final states).
+\end{itemize}
+
+\textbf{Definition:} DFA $M = \langle Q, \Sigma, \delta, q_0, F \rangle$ accepts the word $w = a_1 \ldots a_n$ if there is a sequence of states $q'_0, \ldots, q'_n \in Q$ with
+\begin{itemize}
+    \item $q'_0 = q_0$
+    \item $\delta(q'_{i-1}, a_i) = q'_i$ for all $i \in \{1, \ldots, n\}$ and
+    \item $q'_n \in F$.
+\end{itemize}
+
+\textbf{Definition:} Let $M$ be a DFA. The language recognized by $M$ is defined as $\mathcal L(M) = \{w \in \Sigma^* \mid w \text{ is accepted by } M\}$.
+
+We depict a DFA visually as a directed graph with labelled arcs, where there is a corresponding node for each state and a labelled arc for each transition in the transition function.
+
