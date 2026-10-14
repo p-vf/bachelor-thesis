@@ -20,3 +20,31 @@ Additionally we define $q \cdot w = (q \cdot a) \cdot x$ where $w = ax \in \Sigm
 
 We depict a DFA visually as a directed graph with labelled arcs, where there is a corresponding node for each state and a labelled arc for each transition in the transition function.
 
+\textbf{Definition:} DFA $M = \langle Q, \Sigma, \delta, q_0, F \rangle$ is acyclic, if $q \cdot w \neq q$ for all words $w \in \Sigma^*$ and states $q \in Q$.
+
+\textbf{Definition:} Let $M = \langle Q, \Sigma, \delta, q_0, F \rangle$ be an acyclic DFA. The height $h(q)$ of a state $q \in Q$ is defined as the length of the longest word $w \in \Sigma^*$ for which $q \cdot w \in F$.
+
+\textbf{Definition:} Let $M = \langle Q, \Sigma, \delta, q_0, F \rangle$ be a DFA. Then the signature of state $q$ is the set $S(q) = \{(a, q') \mid a \in \Sigma, q \cdot a = q'\} \cup \begin{cases}\{+\} &\text{if } q \in F \\\{-\} &\text{otherwise}\end{cases}$
+
+\section{Generating a DFA Given a Finite Language}
+To generate a DFA given a finite set of words, we use the method of constructing a tree-shaped DFA. This DFA is a prefix-tree, also known as a trie.
+To construct this DFA, we start with a DFA consisting of only the initial state $q_0$, and a sink state $\bot$, neither of which is a final state. Initially, $q \cdot a = \bot$ holds for any state $q$, also for states that are added during the following procedure.
+We then iterate over all words in the language.
+For each word, we iterate over its symbols - here labelled $a$ -, keeping track in which state we are in the DFA - here labelled $q$ - until we (a) reach the end of the word, at which point $q$ is marked as a final state or (b) the successor state $q \cdot a = \bot$ is the sink state, at which point we add a new state $q'$ with $q \cdot a = q'$.
+
+We obtain a DFA that recognizes exactly the language that was given. However, notice that this DFA is not very efficient: for example, all final states without successor could be merged into one state without changing the language.
+To address this inefficiency, Revuz's Algorithm for minimizing DFAs can be utilized, which is described in the following section.
+
+% TODO maybe add pseudocode here
+
+\section{Revuz's Algorithm}
+Revuz's algorithm finds, given a DFA $M$ with states $Q$ and final states $F$, the minimal DFA $M'$ (with respect to the number of states) for which $\mathcal L(M) = \mathcal L(M')$.
+
+The algorithm works by partitioning the set of states $Q$ into sets $Q_i$ where each state in $Q_i$ has height $i$.
+Then, for each $i \in \{0, 1, \ldots\}$ in increasing order we merge all states $q, q' \in Q_i$ for which $S(q) = S(q')$. The result of this is DFA $M'$.
+
+To compute the partition on $Q_i$ we must traverse the DFA from its final states backwards, on each state keeping track of the maximal height. States which are not reached by this traversal are irrelevant and don't have to be included in the partition.
+
+To merge the equivalent states in $Q_i$, we can create a list of the states and sort them lexicographically by their signatures. Equivalent states in the sorted list are next to eachother, so we can merge consecutive equivalent states in this list and be sure that we merged all equivalent states.
+
+% TODO maybe add pseudocode here
