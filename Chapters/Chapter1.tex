@@ -11,13 +11,10 @@ In this chapter, we cover some Definitions relevant for this thesis.
     \item $q_0 \in Q$ is the start state
     \item $F \subseteq Q$ is the set of accept states (or final states).
 \end{itemize}
+For readability we define the product $q \cdot a = \delta(q, a)$, where $q \in Q$ is a state and $a \in \Sigma$ is a symbol of the alphabet.
+Additionally we define $q \cdot w = (q \cdot a) \cdot x$ where $w = ax \in \Sigma^*$, $a \in \Sigma$ and $x \in \Sigma^*$.
 
-\textbf{Definition:} DFA $M = \langle Q, \Sigma, \delta, q_0, F \rangle$ accepts the word $w = a_1 \ldots a_n$ if there is a sequence of states $q'_0, \ldots, q'_n \in Q$ with
-\begin{itemize}
-    \item $q'_0 = q_0$
-    \item $\delta(q'_{i-1}, a_i) = q'_i$ for all $i \in \{1, \ldots, n\}$ and
-    \item $q'_n \in F$.
-\end{itemize}
+\textbf{Definition:} DFA $M = \langle Q, \Sigma, \delta, q_0, F \rangle$ accepts the word $w \in \Sigma^*$ if $q \cdot w \in F$.
 
 \textbf{Definition:} Let $M$ be a DFA. The language recognized by $M$ is defined as $\mathcal L(M) = \{w \in \Sigma^* \mid w \text{ is accepted by } M\}$.
 
