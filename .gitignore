@@ -7,4 +7,5 @@
 *.nlo
 *.out
 *.toc
+*.synctex.gz
 Thesis.pdf
