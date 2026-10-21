@@ -3,7 +3,8 @@
 In this chapter, we cover some Definitions relevant for this thesis.
 
 \section{Deterministic Finite Automaton}
-\textbf{Definition:} A deterministic finite automaton (DFA) is a 5-tuple $M = \langle Q, \Sigma, \delta, q_0, F \rangle$ where
+\begin{definition}
+A deterministic finite automaton (DFA) is a 5-tuple $M = \langle Q, \Sigma, \delta, q_0, F \rangle$ where
 \begin{itemize}
     \item $Q$ is the finite set of states
     \item $\Sigma$ is the input alphabet
@@ -13,18 +14,70 @@ In this chapter, we cover some Definitions relevant for this thesis.
 \end{itemize}
 For readability we define the product $q \cdot a = \delta(q, a)$, where $q \in Q$ is a state and $a \in \Sigma$ is a symbol of the alphabet.
 Additionally we define $q \cdot w = (q \cdot a) \cdot x$ where $w = ax \in \Sigma^*$, $a \in \Sigma$ and $x \in \Sigma^*$.
+\end{definition}
 
-\textbf{Definition:} DFA $M = \langle Q, \Sigma, \delta, q_0, F \rangle$ accepts the word $w \in \Sigma^*$ if $q \cdot w \in F$.
+\begin{definition}
+DFA $M = \langle Q, \Sigma, \delta, q_0, F \rangle$ accepts the word $w \in \Sigma^*$ if $q \cdot w \in F$.
+\end{definition}
 
-\textbf{Definition:} Let $M$ be a DFA. The language recognized by $M$ is defined as $\mathcal L(M) = \{w \in \Sigma^* \mid w \text{ is accepted by } M\}$.
+\begin{definition}
+Let $M$ be a DFA. The language recognized by $M$ is defined as $\mathcal L(M) = \{w \in \Sigma^* \mid w \text{ is accepted by } M\}$.
+\end{definition}
 
 We depict a DFA visually as a directed graph with labelled arcs, where there is a corresponding node for each state and a labelled arc for each transition in the transition function.
+States from which no final state is reachable - so called sink states - and corresponding transitions can be omitted in the visual depiction.
 
-\textbf{Definition:} DFA $M = \langle Q, \Sigma, \delta, q_0, F \rangle$ is acyclic, if $q \cdot w \neq q$ for all words $w \in \Sigma^*$ and states $q \in Q$.
+\begin{definition}
+DFA $M = \langle Q, \Sigma, \delta, q_0, F \rangle$ is acyclic, if $q \cdot w \neq q$ for all words $w \in \Sigma^*$ and states $q \in Q$.
+\end{definition}
 
-\textbf{Definition:} Let $M = \langle Q, \Sigma, \delta, q_0, F \rangle$ be an acyclic DFA. The height $h(q)$ of a state $q \in Q$ is defined as the length of the longest word $w \in \Sigma^*$ for which $q \cdot w \in F$.
+\section{Planning}
 
-\textbf{Definition:} Let $M = \langle Q, \Sigma, \delta, q_0, F \rangle$ be a DFA. Then the signature of state $q$ is the set $S(q) = \{(a, q') \mid a \in \Sigma, q \cdot a = q'\} \cup \begin{cases}\{+\} &\text{if } q \in F \\\{-\} &\text{otherwise}\end{cases}$
+\begin{definition}
+    A state space or transition system is a 6-tuple $\mathcal S = \langle S, A, \textit{cost}, T, s_I, S_G \rangle$ with
+    \begin{itemize}
+        \item finite set of states $S$
+        \item finite set of actions $A$
+        \item action costs $\textit{cost}: A \rightarrow \mathbb R_0^+$
+        \item transition relation $T \subseteq S \times A \times S$ for which $\langle s, a, s' \rangle \in T$ implies $\langle s, a, s'' \rangle \notin T$ for all $s'' \neq s'$ ($T$ is deterministic in $\langle s, a \rangle$)
+        \item initial state $s_I \in S$
+        \item set of goal states $S_G \subseteq S$
+    \end{itemize}
+\end{definition}
+In the following definitions, let $\mathcal S$ be a state space as above.
+\begin{definition}
+    The triples $\langle s, a, s' \rangle \in T$ are called transitions. We say $\mathcal S$ has the transition $\langle s, a, s' \rangle$ if $\langle s, a, s' \rangle \in T$ and write this as $s \stackrel{a}{\rightarrow} s'$.
+\end{definition}
+\begin{definition}
+    Let $s_0, \ldots, s_n \in S$ be states and $a_1, \ldots, a_n \in A$ be actions such that $s_0 \stackrel{a_1}{\rightarrow} s_1, \ldots, s_{n-1} \stackrel{a_n}{\rightarrow} s_n$.
+    \begin{itemize}
+        \item $\pi = \langle a_1, \ldots, a_n \rangle$ is a path from $s_0$ to $s_n$
+        \item length of $\pi$ is $\lvert \pi \rvert = n$
+        \item cost of $\pi$ is $\textit{cost}(\pi) = \sum_{i=1}^{n} \textit{cost}(a_i)$
+    \end{itemize}
+\end{definition}
+\begin{definition}
+    \begin{itemize}
+        \item state $s \in S$ is reachable if a path from $s_I$ to $s$ exists
+        \item paths from $s \in S$ to some state $s_G \in S_G$ are solutions for/from $s$
+        \item solutions for $s_I$ are called solutions for $\mathcal S$
+        \item optimal solutions (for $s$) have minimal costs among all solutions (for $s$)
+    \end{itemize}
+\end{definition}
+
+
+
+\chapter{Algorithms for Compressing Sets of Plans}
+The result of top-k planners such as SymK (citation needed) is a finite set of plans, i.e. a set of sequences of actions, or in other words a finite language over the actions. In our case, these finite sets of languages are explicitly represented as a set of words. DFAs and DFCAs alike can be used to compactly represent finite languages. In this chapter, we take a look at how we can construct DFAs and DFCAs from the explicit representation of the language that represent the same language, i.e. given a finite language $L \subset A^*$, how do we construct a DFA (or DFCA) $M$ with $\mathcal L(M) = L$.
+
+
+\begin{definition}
+Let $M = \langle Q, \Sigma, \delta, q_0, F \rangle$ be an acyclic DFA. The height $h(q)$ of a state $q \in Q$ is defined as the length of the longest word $w \in \Sigma^*$ for which $q \cdot w \in F$.
+\end{definition}
+
+\begin{definition}
+Let $M = \langle Q, \Sigma, \delta, q_0, F \rangle$ be a DFA. Then the signature of state $q$ is the set $S(q) = \{(a, q') \mid a \in \Sigma, q \cdot a = q'\} \cup \begin{cases}\{+\} &\text{if } q \in F \\\{-\} &\text{otherwise}\end{cases}$
+\end{definition}
 
 \section{Generating a DFA Given a Finite Language}
 To generate a DFA given a finite set of words, we use the method of constructing a tree-shaped DFA. This DFA is a prefix-tree, also known as a trie.

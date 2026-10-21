@@ -27,7 +27,8 @@
 % switch here for the german logo to logo-de
 \ulogo				{Template/logo-en} 
 
-
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}
 %% ----------------------------------------------------------------
 \begin{document}
 
@@ -47,6 +48,7 @@
 %\thesisnomencl
 %% ----------------------------------------------------------------
 \thesismain
+\nocite{*} % to satisfy bibtex for now (until i have some citations)
 \input{./Chapters/Chapter1}
 %% ----------------------------------------------------------------
 \thesisappendix
