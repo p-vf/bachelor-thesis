@@ -12,8 +12,8 @@ A deterministic finite automaton (DFA) is a 5-tuple $M = \langle Q, \Sigma, \del
     \item $q_0 \in Q$ is the start state
     \item $F \subseteq Q$ is the set of accept states (or final states).
 \end{itemize}
-For readability we define the product $q \cdot a = \delta(q, a)$, where $q \in Q$ is a state and $a \in \Sigma$ is a symbol of the alphabet.
-Additionally we define $q \cdot w = (q \cdot a) \cdot x$ where $w = ax \in \Sigma^*$, $a \in \Sigma$ and $x \in \Sigma^*$.
+For readability we define $\delta(q, \varepsilon) = q$ and $\delta(q, aw) = \delta(\delta(q, a), w)$ where $\varepsilon$ denotes the word with length 0, $q \in Q$, $a \in \Sigma$ and $w \in \Sigma^+$.
+If the DFA is clear from context, we write $q \cdot w$ instead of $\delta(q, w)$.
 \end{definition}
 
 \begin{definition}
@@ -24,8 +24,33 @@ DFA $M = \langle Q, \Sigma, \delta, q_0, F \rangle$ accepts the word $w \in \Sig
 Let $M$ be a DFA. The language recognized by $M$ is defined as $\mathcal L(M) = \{w \in \Sigma^* \mid w \text{ is accepted by } M\}$.
 \end{definition}
 
+\begin{example}
+    \label{ex:dfa}
+    Let DFA $E = \langle Q_E, \Sigma_E, \delta_E, q_0, F_E \rangle$ where
+    \begin{equation*}
+        Q_E = {0, 1, 2, 3, 4, 5, 6, 7, 8}, \quad \Sigma_E = \{a, b\}, \quad q_0 = 0, \quad F_E = \{1, 5, 7\},
+    \end{equation*}
+    and $\delta_E: Q_E \times \Sigma_E \rightarrow Q_E$ is the function defined by
+    \begin{align*}
+        \delta_E(0, a) &= 1, \quad \delta_E(0, b) = 2, \quad \delta_E(1, a) = 3, \quad \delta_E(1, b) = 4, \quad \delta_E(2, a) = 5, \quad \\
+        \delta_E(3, a) &= \delta_E(4, a) = 6, \quad \delta_E(5, a) = \delta_E(5, b) = \delta(6, b) = 7, \quad \\
+        \delta_E(2, b) &= \delta_E(3, b) = \delta_E(4, b) = \delta_E(6, a) = \delta_E(7, a) = \delta_E(7, b) = \delta_E(8, a) = \delta_E(8, b) = 8.
+    \end{align*}
+    One can check that the language recognized by $E$ is $\mathcal L(E) = \{a, b, ba, baa, bab, aaab, abab\}$.
+\end{example}
+
 We depict a DFA visually as a directed graph with labelled arcs, where there is a corresponding node for each state and a labelled arc for each transition in the transition function.
 States from which no final state is reachable - so called sink states - and corresponding transitions can be omitted in the visual depiction.
+An example is given by the visual depiction of DFA $E$ from Example \ref{ex:dfa} in Figure \ref{fig:ex_dfa}.
+We see that the state 8 is not depicted because it is a sink state (once the state 8 is reached, no other state can be visited because $\delta_E(8, a) = \delta_E(8, b) = 8$ and $8 \notin F_E$).
+
+\begin{figure}[htp]
+    \centering
+    \includegraphics[height=.5\textwidth]{Figures/dfa-example.png}
+    \captionsetup{justification=centering}
+    \caption{Visual depiction of DFA from Example \ref{ex:dfa}}
+    \label{fig:ex_dfa}
+\end{figure}
 
 \begin{definition}
 DFA $M = \langle Q, \Sigma, \delta, q_0, F \rangle$ is acyclic, if $q \cdot w \neq q$ for all words $w \in \Sigma^*$ and states $q \in Q$.
@@ -76,7 +101,10 @@ Let $M = \langle Q, \Sigma, \delta, q_0, F \rangle$ be an acyclic DFA. The heigh
 \end{definition}
 
 \begin{definition}
-Let $M = \langle Q, \Sigma, \delta, q_0, F \rangle$ be a DFA. Then the signature of state $q$ is the set $S(q) = \{(a, q') \mid a \in \Sigma, q \cdot a = q'\} \cup \begin{cases}\{+\} &\text{if } q \in F \\\{-\} &\text{otherwise}\end{cases}$
+Let $M = \langle Q, \Sigma, \delta, q_0, F \rangle$ be a DFA. Then the signature of state $q$ is the set
+\[S(q) = \{(a, q') \mid a \in \Sigma, q \cdot a = q'\} \cup \begin{cases}\{+\} &\text{if } q \in F \\\{-\} &\text{otherwise.}\end{cases}\]
+
+Two states are called equivalent iff they have the same signature.
 \end{definition}
 
 \section{Generating a DFA Given a Finite Language}
@@ -85,10 +113,25 @@ To construct this DFA, we start with a DFA consisting of only the initial state 
 We then iterate over all words in the language.
 For each word, we iterate over its symbols - here labelled $a$ -, keeping track in which state we are in the DFA - here labelled $q$ - until we (a) reach the end of the word, at which point $q$ is marked as a final state or (b) the successor state $q \cdot a = \bot$ is the sink state, at which point we add a new state $q'$ with $q \cdot a = q'$.
 
-We obtain a DFA that recognizes exactly the language that was given. However, notice that this DFA is not very efficient: for example, all final states without successor could be merged into one state without changing the language.
+We obtain a DFA that recognizes exactly the language that was given. However, notice that this DFA is not very efficient with respect to the number of states: for example, all final states without successor could be merged into one state without changing the language.
 To address this inefficiency, Revuz's Algorithm for minimizing DFAs can be utilized, which is described in the following section.
 
 % TODO maybe add pseudocode here
+\section{Merging States}
+During Revuz's algorithm, the $\textit{merge}$ operation is performed repeatedly.
+This operation is defined by $A' = \textit{merge}(A, q, q')$ where $A = \langle Q_A, \Sigma, \delta_A, q_0, F_A \rangle$ is the original DFA and $q$, $q'$ are states in $Q_A$ and $A' = \langle Q_A \setminus q', \Sigma, \delta_{A'}, q_0, F_A \setminus q' \rangle$ is the resulting DFA with
+\[\delta_{A'}(q, a) = \begin{cases}
+    \delta_A(p, a), &\text{if } \delta_A(p, a) \ne q' \\
+    q, &\text{otherwise.}
+\end{cases}\]
+This operation only makes sense if the two states $q, q'$ are equivalent. An example application of this operation is depicted in Figure \ref{fig:ex-merge-dfa}.
+\begin{figure}[htp]
+    \centering
+    \includegraphics[height=.5\textwidth]{Figures/merge-dfa-example.png}
+    \captionsetup{justification=centering}
+    \caption{The operation of merging state 4 into state 3 on the DFA $E$ from Example \ref{ex:dfa}, $\textit{merge}(E, 3, 4)$ depicted visually}
+    \label{fig:ex-merge-dfa}
+\end{figure}
 
 \section{Revuz's Algorithm}
 Revuz's algorithm finds, given a DFA $M$ with states $Q$ and final states $F$, the minimal DFA $M'$ (with respect to the number of states) for which $\mathcal L(M) = \mathcal L(M')$.
